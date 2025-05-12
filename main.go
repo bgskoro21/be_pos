@@ -2,13 +2,19 @@ package main
 
 import (
 	"bgskoro21/be-pos/app"
+	controller "bgskoro21/be-pos/controller/user"
+	"bgskoro21/be-pos/exception"
 	"bgskoro21/be-pos/helper"
+	"bgskoro21/be-pos/model/domain"
 	"bgskoro21/be-pos/pkg/logger"
+	repository "bgskoro21/be-pos/repository/user"
 	"bgskoro21/be-pos/routes"
+	service "bgskoro21/be-pos/service/user"
 	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func main(){
@@ -21,11 +27,25 @@ func main(){
 		WriteTimeout: time.Second * 5,
 		ReadTimeout: time.Second * 5,
 		Prefork: true,
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error{
+			return exception.ErrorHandler(ctx, err)
+		},
 	})
 
-	db.AutoMigrate()
+	appFiber.Use(recover.New())
+
+	db.AutoMigrate(
+		&domain.User{},
+	)
+
+	userRepo := repository.NewUserRepository(db);
+	userService := service.NewUserService(userRepo)
+	userController := controller.NewUserController(userService)
+
+	api := appFiber.Group("/api/v1")
+	routes.UserRoutes(api, userController);
 	
-	routes.SetupRoutes(appFiber)
+	// routes.SetupRoutes(appFiber)
 	
 	logger.Log.Info("Server Started")
 

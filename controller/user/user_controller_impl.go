@@ -1,0 +1,33 @@
+package controller
+
+import (
+	"bgskoro21/be-pos/helper"
+	"bgskoro21/be-pos/model/dto"
+	service "bgskoro21/be-pos/service/user"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type UserControllerImpl struct{
+	UserService service.UserService
+}
+
+func NewUserController(userService service.UserService) UserController{
+	return &UserControllerImpl{
+		UserService: userService,
+	}
+}
+
+func (controller *UserControllerImpl) Create(ctx *fiber.Ctx) error{
+	var request dto.RegisterUserRequest
+
+	if err := ctx.BodyParser(&request); err != nil{
+		helper.PanicIfError(err)
+	}
+
+	user, err := controller.UserService.Register(request);
+
+	helper.PanicIfError(err)
+
+	return helper.SendResponse(ctx, fiber.StatusCreated, user, nil)
+}
