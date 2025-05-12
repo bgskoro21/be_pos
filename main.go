@@ -41,11 +41,10 @@ func main(){
 	userRepo := repository.NewUserRepository(db);
 	userService := service.NewUserService(userRepo)
 	userController := controller.NewUserController(userService)
-
-	api := appFiber.Group("/api/v1")
-	routes.UserRoutes(api, userController);
 	
-	// routes.SetupRoutes(appFiber)
+	routes.SetupRoutes(appFiber, routes.RoutConfig{
+		UserController: userController,
+	})
 	
 	logger.Log.Info("Server Started")
 

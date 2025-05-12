@@ -1,14 +1,17 @@
 package routes
 
 import (
-	"bgskoro21/be-pos/pkg/logger"
+	controller "bgskoro21/be-pos/controller/user"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupRoutes(app *fiber.App){
-	app.Get("/", func(c *fiber.Ctx) error {
-		logger.Log.Info("Send Hello World")
-		return c.SendString("Hello, World!")
-	})
+type RoutConfig struct{
+	UserController controller.UserController
+}
+
+func SetupRoutes(app *fiber.App, cfg RoutConfig){
+	api := app.Group("/api/v1")
+
+	UserRoutes(api, cfg.UserController)
 }
