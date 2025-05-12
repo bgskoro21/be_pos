@@ -2,14 +2,11 @@ package main
 
 import (
 	"bgskoro21/be-pos/app"
-	controller "bgskoro21/be-pos/controller/user"
 	"bgskoro21/be-pos/exception"
 	"bgskoro21/be-pos/helper"
 	"bgskoro21/be-pos/model/domain"
 	"bgskoro21/be-pos/pkg/logger"
-	repository "bgskoro21/be-pos/repository/user"
 	"bgskoro21/be-pos/routes"
-	service "bgskoro21/be-pos/service/user"
 	"os"
 	"time"
 
@@ -38,12 +35,10 @@ func main(){
 		&domain.User{},
 	)
 
-	userRepo := repository.NewUserRepository(db);
-	userService := service.NewUserService(userRepo)
-	userController := controller.NewUserController(userService)
+	container := app.InitContainer(db);
 	
 	routes.SetupRoutes(appFiber, routes.RoutConfig{
-		UserController: userController,
+		UserController: container.UserController,
 	})
 	
 	logger.Log.Info("Server Started")
