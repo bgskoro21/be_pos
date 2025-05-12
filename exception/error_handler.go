@@ -15,7 +15,7 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 
 	// Not found error (custom)
 	if nf, ok := err.(NotFoundError); ok {
-		return helper.SendResponse(ctx, fiber.StatusNotFound, nil, nf.Error)
+		return helper.SendResponse(ctx, fiber.StatusNotFound, nil, nf.Error())
 	}
 
 	// Conflict Error

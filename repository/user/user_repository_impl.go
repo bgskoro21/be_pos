@@ -27,8 +27,15 @@ func (repository *UserRepositoryImpl) Create(user *domain.User) (*domain.User, e
 	}
 
 	if err := repository.db.Create(user).Error; err != nil{
-		return nil, err
+		panic(err)
 	}
 
 	return user, nil
+}
+
+func (repository *UserRepositoryImpl) FindByEmail(email string) (*domain.User, error){
+	var user domain.User
+	err := repository.db.Where("email = ?", email).First(&user).Error
+
+	return &user, err
 }

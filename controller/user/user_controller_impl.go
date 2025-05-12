@@ -31,3 +31,19 @@ func (controller *UserControllerImpl) Create(ctx *fiber.Ctx) error{
 
 	return helper.SendResponse(ctx, fiber.StatusCreated, user, nil)
 }
+
+func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error{
+	var request dto.LoginRequest
+
+	if err := ctx.BodyParser(&request); err != nil{
+		helper.PanicIfError(err)
+	}
+
+	token, err := controller.UserService.Login(request);
+
+	helper.PanicIfError(err)
+
+	return helper.SendResponse(ctx, fiber.StatusOK, fiber.Map{
+		"accessToken": token,
+	}, nil)
+}
