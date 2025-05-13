@@ -39,3 +39,11 @@ func (repository *UserRepositoryImpl) FindByEmail(email string) (*domain.User, e
 
 	return &user, err
 }
+
+func (repository *UserRepositoryImpl) FindById(id uint) (*domain.User, error){
+	user := domain.User{}
+
+	err := repository.db.Where("id = ?", id).First(&user).Error
+
+	return &user, err
+}

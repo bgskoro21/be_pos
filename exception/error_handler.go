@@ -24,5 +24,5 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 	}
 
 	// Default: Internal server error
-	return helper.SendResponse(ctx, fiber.StatusInternalServerError, nil, err)
+	return helper.SendResponse(ctx, fiber.StatusInternalServerError, nil, err.Error())
 }

@@ -4,6 +4,7 @@ import (
 	"bgskoro21/be-pos/helper"
 	"bgskoro21/be-pos/model/dto"
 	service "bgskoro21/be-pos/service/user"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -46,4 +47,17 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error{
 	return helper.SendResponse(ctx, fiber.StatusOK, fiber.Map{
 		"accessToken": token,
 	}, nil)
+}
+
+func (controller *UserControllerImpl) FindById(ctx *fiber.Ctx) error{
+	val := ctx.Locals("user_id")
+	userId, ok := val.(float64)
+
+	if !ok{
+		panic(fmt.Sprintf("Expected user_id to be float64, but got %T", val))
+	}
+	
+	user, _ := controller.UserService.FindById(uint(userId))
+
+	return helper.SendResponse(ctx, fiber.StatusOK, user, nil)
 }

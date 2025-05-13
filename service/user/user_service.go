@@ -8,4 +8,5 @@ import (
 type UserService interface{
 	Register(registerUserRequest dto.RegisterUserRequest) (*domain.User, error)
 	Login(loginRequest dto.LoginRequest) (string, error)
+	FindById(userId uint) (*domain.User, error)
 }

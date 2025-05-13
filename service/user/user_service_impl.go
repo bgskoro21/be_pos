@@ -5,7 +5,9 @@ import (
 	"bgskoro21/be-pos/helper"
 	"bgskoro21/be-pos/model/domain"
 	"bgskoro21/be-pos/model/dto"
+	"bgskoro21/be-pos/pkg/logger"
 	repository "bgskoro21/be-pos/repository/user"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -54,4 +56,15 @@ func (service *UserServiceImpl) Login(request dto.LoginRequest) (string, error){
 	}
 
 	return helper.GenerateJWT(user.ID)
+}
+
+func (service *UserServiceImpl) FindById(userId uint) (*domain.User, error){
+	logger.Log.Info(fmt.Sprintf("Looking user for ID: %v", userId))
+	user, err := service.userRepository.FindById(userId)
+
+	if err != nil{
+		helper.PanicIfError(exception.NewNotFoundError("User not found!"))
+	}
+
+	return user, nil;
 }
