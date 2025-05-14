@@ -6,6 +6,7 @@ import (
 	"bgskoro21/be-pos/model/domain"
 	"bgskoro21/be-pos/model/dto"
 	"bgskoro21/be-pos/pkg/logger"
+	repositoryRefreshToken "bgskoro21/be-pos/repository/refresh_token"
 	repository "bgskoro21/be-pos/repository/user"
 	"fmt"
 
@@ -13,12 +14,14 @@ import (
 )
 
 type UserServiceImpl struct{
-	userRepository repository.UserRepository
+	userRepository repository.UserRepository;
+	refreshTokenRepository repositoryRefreshToken.RefreshTokenRepository
 }
 
-func NewUserService(userRepository repository.UserRepository) UserService{
+func NewUserService(userRepository repository.UserRepository, refreshTokenRepository repositoryRefreshToken.RefreshTokenRepository) UserService{
 	return &UserServiceImpl{
 		userRepository,
+		refreshTokenRepository,
 	}
 }
 

@@ -33,6 +33,7 @@ func main(){
 
 	db.AutoMigrate(
 		&domain.User{},
+		&domain.RefreshToken{},
 	)
 
 	container := app.InitContainer(db);

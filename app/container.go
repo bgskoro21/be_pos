@@ -2,6 +2,7 @@ package app
 
 import (
 	controller "bgskoro21/be-pos/controller/user"
+	repositoryToken "bgskoro21/be-pos/repository/refresh_token"
 	repository "bgskoro21/be-pos/repository/user"
 	service "bgskoro21/be-pos/service/user"
 
@@ -14,7 +15,8 @@ type Container struct{
 
 func InitContainer(db *gorm.DB) *Container{
 	userRepo := repository.NewUserRepository(db)
-	userSvc := service.NewUserService(userRepo)
+	refreshTokenRepo := repositoryToken.NewRefreshTokenRepository(db)
+	userSvc := service.NewUserService(userRepo, refreshTokenRepo)
 	userCtrl := controller.NewUserController(userSvc)
 
 	return &Container{

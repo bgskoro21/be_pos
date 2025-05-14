@@ -40,6 +40,9 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error{
 		helper.PanicIfError(err)
 	}
 
+	request.UserAgent = string(ctx.Request().Header.UserAgent())
+	request.IPAddress = ctx.IP()
+
 	token, err := controller.UserService.Login(request);
 
 	helper.PanicIfError(err)
