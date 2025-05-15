@@ -9,6 +9,7 @@ import (
 	repositoryRefreshToken "bgskoro21/be-pos/repository/refresh_token"
 	repository "bgskoro21/be-pos/repository/user"
 	"fmt"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -41,7 +42,7 @@ func (service *UserServiceImpl) Register(request dto.RegisterUserRequest) (*doma
 	return service.userRepository.Create(&registerRequest);
 }
 
-func (service *UserServiceImpl) Login(request dto.LoginRequest) (string, error){
+func (service *UserServiceImpl) Login(request dto.LoginRequest) (map[string]string, error){
 	if err := helper.ValidateStruct(request); err != nil{
 		panic(err)
 	}
@@ -58,7 +59,30 @@ func (service *UserServiceImpl) Login(request dto.LoginRequest) (string, error){
 		panic(exception.NewNotFoundError("Email or password are wrong!"))
 	}
 
-	return helper.GenerateJWT(user.ID)
+	accessToken, err := helper.GenerateJWT(user.ID)
+	helper.PanicIfError(err)
+
+	refreshToken, err := helper.GenerateJWTRefreshToken(user.ID);
+	helper.PanicIfError(err);
+
+	refreshTokenRequest := &domain.RefreshToken{
+		Token: refreshToken,
+		UserID: user.ID,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
+		CreatedAt: time.Now(),
+		UserAgent: request.UserAgent,
+		IPAddress: request.IPAddress,
+	}
+
+	token, err := service.refreshTokenRepository.Create(refreshTokenRequest)
+	helper.PanicIfError(err)
+
+	tokens := map[string]string{
+		"accessToken": accessToken,
+		"refreshToken": token.Token,
+	}
+
+	return tokens, nil
 }
 
 func (service *UserServiceImpl) FindById(userId uint) (*domain.User, error){

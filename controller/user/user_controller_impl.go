@@ -43,13 +43,11 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error{
 	request.UserAgent = string(ctx.Request().Header.UserAgent())
 	request.IPAddress = ctx.IP()
 
-	token, err := controller.UserService.Login(request);
+	data, err := controller.UserService.Login(request);
 
 	helper.PanicIfError(err)
 
-	return helper.SendResponse(ctx, fiber.StatusOK, fiber.Map{
-		"accessToken": token,
-	}, nil)
+	return helper.SendResponse(ctx, fiber.StatusOK, data, nil)
 }
 
 func (controller *UserControllerImpl) FindById(ctx *fiber.Ctx) error{
