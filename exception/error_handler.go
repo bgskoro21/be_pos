@@ -23,6 +23,10 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 		return helper.SendResponse(ctx, fiber.StatusConflict, nil, cf.Error())
 	}
 
+	if ae, ok := err.(UnAuthoirzedError); ok{
+		return helper.SendResponse(ctx, fiber.StatusConflict, nil, ae.Error())
+	}
+
 	// Default: Internal server error
 	return helper.SendResponse(ctx, fiber.StatusInternalServerError, nil, err.Error())
 }

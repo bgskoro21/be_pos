@@ -85,6 +85,57 @@ func (service *UserServiceImpl) Login(request dto.LoginRequest) (map[string]stri
 	return tokens, nil
 }
 
+func (service *UserServiceImpl) Refresh(request dto.RefreshTokenRequest) (map[string]string, error){
+	if err := helper.ValidateStruct(request); err != nil{
+		return nil, err
+	}
+
+	data, err := service.refreshTokenRepository.FindByToken(&domain.RefreshToken{
+		Token: request.Token,
+		IPAddress: request.IPAddress,
+		UserAgent: request.UserAgent,
+	})
+
+	if err != nil {
+		return nil, exception.NewNotFoundError("Refresh token not found or invalid")
+	}
+
+	if time.Now().After(data.ExpiresAt){
+		return nil, exception.NewUnAuthorizedError("Refresh token expired")
+	}
+
+	accessToken, err := helper.GenerateJWT(data.UserID)
+	helper.PanicIfError(err)
+
+	refreshToken, err := helper.GenerateJWTRefreshToken(data.UserID);
+	helper.PanicIfError(err);
+
+	refreshTokenRequest := &domain.RefreshToken{
+		Token: refreshToken,
+		UserID: data.UserID,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
+		CreatedAt: time.Now(),
+		UserAgent: request.UserAgent,
+		IPAddress: request.IPAddress,
+	}
+
+	token, err := service.refreshTokenRepository.Create(refreshTokenRequest);
+
+	helper.PanicIfError(err)
+
+	err = service.refreshTokenRepository.DeleteByToken(data.Token);
+
+	helper.PanicIfError(err)
+
+	tokens := map[string]string{
+		"accessToken": accessToken,
+		"refreshToken": token.Token,
+	}
+
+	return tokens, nil
+
+}
+
 func (service *UserServiceImpl) FindById(userId uint) (*domain.User, error){
 	logger.Log.Info(fmt.Sprintf("Looking user for ID: %v", userId))
 	user, err := service.userRepository.FindById(userId)

@@ -50,6 +50,23 @@ func (controller *UserControllerImpl) Login(ctx *fiber.Ctx) error{
 	return helper.SendResponse(ctx, fiber.StatusOK, data, nil)
 }
 
+func (controller *UserControllerImpl) Refresh(ctx *fiber.Ctx) error{
+	var request dto.RefreshTokenRequest
+
+	if err := ctx.BodyParser(&request); err != nil{
+		helper.PanicIfError(err)
+	}
+
+	request.UserAgent = string(ctx.Request().Header.UserAgent())
+	request.IPAddress = ctx.IP()
+
+	data, err := controller.UserService.Refresh(request)
+
+	helper.PanicIfError(err)
+
+	return helper.SendResponse(ctx, fiber.StatusOK, data, nil)
+}
+
 func (controller *UserControllerImpl) FindById(ctx *fiber.Ctx) error{
 	val := ctx.Locals("user_id")
 	userId, ok := val.(float64)

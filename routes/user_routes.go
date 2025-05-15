@@ -12,6 +12,7 @@ func UserRoutes(router fiber.Router, userController controller.UserController){
 
 	userRoutes.Post("/register", userController.Create)
 	userRoutes.Post("/login", userController.Login)
+	userRoutes.Post("/refresh", userController.Refresh)
 
 	private := userRoutes.Group("/", middleware.JWTMiddleware())
 	private.Get("/profile", userController.FindById)
