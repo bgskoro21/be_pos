@@ -26,6 +26,30 @@ func NewUserService(userRepository repository.UserRepository, refreshTokenReposi
 	}
 }
 
+func generateAndStoreRefreshToken(userId uint, ip string, ua string, repo repositoryRefreshToken.RefreshTokenRepository) (string, error){
+	refreshToken, err := helper.GenerateJWTRefreshToken(userId);
+	if err != nil {
+		return "", err
+	}
+
+	refreshTokenRequest := &domain.RefreshToken{
+		Token: refreshToken,
+		UserID: userId,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
+		CreatedAt: time.Now(),
+		UserAgent: ua,
+		IPAddress: ip,
+	}
+
+	token, err := repo.Create(refreshTokenRequest);
+
+	if err != nil {
+		return "", nil
+	}
+
+	return token.Token, nil
+}
+
 func (service *UserServiceImpl) Register(request dto.RegisterUserRequest) (*domain.User, error){
 	if err := helper.ValidateStruct(request); err != nil{
 		panic(err)
@@ -62,24 +86,13 @@ func (service *UserServiceImpl) Login(request dto.LoginRequest) (map[string]stri
 	accessToken, err := helper.GenerateJWT(user.ID)
 	helper.PanicIfError(err)
 
-	refreshToken, err := helper.GenerateJWTRefreshToken(user.ID);
-	helper.PanicIfError(err);
+	refreshToken, err := generateAndStoreRefreshToken(user.ID, request.IPAddress, request.UserAgent, service.refreshTokenRepository);
 
-	refreshTokenRequest := &domain.RefreshToken{
-		Token: refreshToken,
-		UserID: user.ID,
-		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
-		CreatedAt: time.Now(),
-		UserAgent: request.UserAgent,
-		IPAddress: request.IPAddress,
-	}
-
-	token, err := service.refreshTokenRepository.Create(refreshTokenRequest)
 	helper.PanicIfError(err)
 
 	tokens := map[string]string{
 		"accessToken": accessToken,
-		"refreshToken": token.Token,
+		"refreshToken": refreshToken,
 	}
 
 	return tokens, nil
@@ -105,31 +118,26 @@ func (service *UserServiceImpl) Refresh(request dto.RefreshTokenRequest) (map[st
 	}
 
 	accessToken, err := helper.GenerateJWT(data.UserID)
-	helper.PanicIfError(err)
 
-	refreshToken, err := helper.GenerateJWTRefreshToken(data.UserID);
-	helper.PanicIfError(err);
-
-	refreshTokenRequest := &domain.RefreshToken{
-		Token: refreshToken,
-		UserID: data.UserID,
-		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
-		CreatedAt: time.Now(),
-		UserAgent: request.UserAgent,
-		IPAddress: request.IPAddress,
+	if err != nil {
+		return nil, err
 	}
 
-	token, err := service.refreshTokenRepository.Create(refreshTokenRequest);
+	token, err := generateAndStoreRefreshToken(data.UserID, request.IPAddress, request.UserAgent, service.refreshTokenRepository)
 
-	helper.PanicIfError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	err = service.refreshTokenRepository.DeleteByToken(data.Token);
 
-	helper.PanicIfError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	tokens := map[string]string{
 		"accessToken": accessToken,
-		"refreshToken": token.Token,
+		"refreshToken": token,
 	}
 
 	return tokens, nil
