@@ -7,7 +7,6 @@ import (
 	"bgskoro21/be-pos/model/domain"
 	"bgskoro21/be-pos/pkg/logger"
 	"bgskoro21/be-pos/routes"
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,7 +22,7 @@ func main(){
 		IdleTimeout: time.Second * 5,
 		WriteTimeout: time.Second * 5,
 		ReadTimeout: time.Second * 5,
-		Prefork: true,
+		Prefork: false,
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error{
 			return exception.ErrorHandler(ctx, err)
 		},
@@ -44,7 +43,7 @@ func main(){
 	
 	logger.Log.Info("Server Started")
 
-	err := appFiber.Listen(os.Getenv("APP_PORT"))
+	err := appFiber.Listen(":8080")
 
 	helper.PanicIfError(err)
 
