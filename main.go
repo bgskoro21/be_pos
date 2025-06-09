@@ -7,6 +7,7 @@ import (
 	"bgskoro21/be-pos/model/domain"
 	"bgskoro21/be-pos/pkg/logger"
 	"bgskoro21/be-pos/routes"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -43,7 +44,7 @@ func main(){
 	
 	logger.Log.Info("Server Started")
 
-	err := appFiber.Listen(":8080")
+	err := appFiber.Listen(":" + os.Getenv("APP_PORT"))
 
 	helper.PanicIfError(err)
 
