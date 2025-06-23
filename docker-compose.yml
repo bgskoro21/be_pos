@@ -1,16 +1,4 @@
 services:
-  app:
-    build: .
-    container_name: be-pos-app
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-    env_file:
-      - .env
-    networks:
-      - pos-network
-
   db:
     image: postgres
     container_name: postgres-db
@@ -23,6 +11,17 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - "pg-data:/var/lib/postgresql/data"
+    networks:
+      - pos-network
+  app:
+    build: .
+    container_name: be-pos-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
     networks:
       - pos-network
 
