@@ -1,8 +1,18 @@
-version: "3.8"
-
 services:
+  app:
+    build: .
+    container_name: be-pos-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      - pos-network
+
   db:
-    image: postgres:15
+    image: postgres
     container_name: postgres-db
     restart: always
     ports:
@@ -12,29 +22,12 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - "pg-data:/var/lib/postgresql/data"
     networks:
-      - app-network
-
-  app:
-    build: .
-    container_name: go-be-pos
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-    environment:
-      APP_PORT: ${APP_PORT}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-    networks:
-      - app-network
+      - pos-network
 
 volumes:
-  pgdata:
+  pg-data:
 
 networks:
-  app-network:
+  pos-network:
