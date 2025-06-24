@@ -74,13 +74,13 @@ func (service *UserServiceImpl) Login(request dto.LoginRequest) (map[string]stri
 	user, err := service.userRepository.FindByEmail(request.Email)
 
 	if err != nil{
-		panic(exception.NewNotFoundError("Email or password are wrong!"))
+		panic(exception.NewNotFoundError("Emails or password are wrong!"))
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(request.Password))
 	
 	if err != nil{
-		panic(exception.NewNotFoundError("Email or password are wrong!"))
+		panic(exception.NewNotFoundError("Emails or password are wrong!"))
 	}
 
 	accessToken, err := helper.GenerateJWT(user.ID)
