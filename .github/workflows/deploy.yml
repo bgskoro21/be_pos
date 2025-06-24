@@ -3,7 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main # Ganti kalau branch deploy kamu beda
+      - master
 
 jobs:
   deploy:
