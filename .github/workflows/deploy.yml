@@ -16,7 +16,7 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_bagaskara_ssh
+          echo "${{ secrets.REPO_SECRET }}" > ~/.ssh/id_bagaskara_ssh
           chmod 600 ~/.ssh/id_bagaskara_ssh
           ssh-keyscan 54.151.254.92 >> ~/.ssh/known_hosts
 
