@@ -33,7 +33,7 @@ jobs:
       - name: Deploy ke VPS
         run: |
           ssh -v -i ~/.ssh/id_bagaskara_ssh ubuntu@54.151.254.92 << 'EOF'
-            cd /home/ubuntu/my-project
+            cd /home/ubuntu/my-project/be_pos
             git pull origin main
             docker compose down
             docker compose up -d --build
