@@ -19,10 +19,20 @@ jobs:
           echo "${{ secrets.REPO_SECRET }}" > ~/.ssh/id_bagaskara_ssh
           chmod 600 ~/.ssh/id_bagaskara_ssh
           ssh-keyscan 54.151.254.92 >> ~/.ssh/known_hosts
+      - name: 🪵
+        run: |
+          ls -la ~/.ssh
+          echo "--- START OF KEY ---"
+          head -n 5 ~/.ssh/id_bagaskara_ssh
+          echo "--- END OF KEY ---"
+
+      - name: 🧪 Test SSH Connection with -v
+        run: |
+          ssh -v -i ~/.ssh/id_bagaskara_ssh ubuntu@54.151.254.92 echo "✅ SSH SUCCESS"
 
       - name: Deploy ke VPS
         run: |
-          ssh ubuntu@54.151.254.92 << 'EOF'
+          ssh -v -i ~/.ssh/id_bagaskara_ssh ubuntu@54.151.254.92 << 'EOF'
             cd /home/ubuntu/my-project
             git pull origin main
             docker compose down
